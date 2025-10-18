@@ -8,14 +8,22 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+
+    # Ajuste aqui: defina true se quiser subir servidor local (serve dist na 3000)
+    env:
+      USE_LOCAL_SERVER: "false"      # "true" para usar start + wait-on
+      APP_URL: "http://localhost:3000"
+
     defaults:
       run:
         working-directory: web
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node (Yarn cache em /web)
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'yarn'
@@ -24,15 +32,27 @@ jobs:
       - name: Install deps
         run: yarn install --frozen-lockfile
 
-      - name: Cypress run
+      # --- Cypress run (sem servidor local) ---
+      - name: Cypress run (baseUrl externo)
+        if: env.USE_LOCAL_SERVER != 'true'
         uses: cypress-io/github-action@v6
         with:
           working-directory: web
-          start: yarn start:test
-          wait-on: 'http://localhost:3000'
           browser: chrome
           config: video=true,trashAssetsBeforeRuns=true
 
+      # --- Cypress run (com servidor local) ---
+      - name: Cypress run (com servidor local)
+        if: env.USE_LOCAL_SERVER == 'true'
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: web
+          start: yarn start:test             # serve -s dist -l 3000
+          wait-on: ${{ env.APP_URL }}
+          browser: chrome
+          config: video=true,trashAssetsBeforeRuns=true
+
+      # Artefatos (sempre enviar para facilitar a depuração)
       - name: Upload videos
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,8 +63,4 @@ jobs:
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-screenshots
-          path: web/cypress/screenshots
-          if-no-files-found: ignore
+        uses: a
