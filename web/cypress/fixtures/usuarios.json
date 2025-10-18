@@ -1,0 +1,12 @@
+{
+    "User_Aluno_Correto": {
+        "tipo": "Aluno",
+        "username": "papito@webdojo.com",
+        "password": "katana123"
+    },
+    "User_Aluno_EmailInvalido": {
+        "tipo": "Aluno",
+        "username": "papitowebdojo.com",
+        "password": "katana123"
+    }
+}
