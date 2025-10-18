@@ -11,7 +11,7 @@ jobs:
 
     # Ajuste aqui: defina true se quiser subir servidor local (serve dist na 3000)
     env:
-      USE_LOCAL_SERVER: "false"      # "true" para usar start + wait-on
+      USE_LOCAL_SERVER: "true"      # "true" para usar start + wait-on
       APP_URL: "http://localhost:3000"
 
     defaults:
