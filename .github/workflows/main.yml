@@ -2,49 +2,49 @@ name: Cypress E2E Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main ]
   pull_request:
-    branches: [main, develop]
-  workflow_dispatch:
 
 jobs:
-  e2e-tests:
-    timeout-minutes: 1260
+  e2e:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node (LTS) + cache npm
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: npm
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: web/yarn.lock
 
-      - name: Instalar dependências (CI)
-        run: npm ci
+      - name: Install deps
+        run: yarn install --frozen-lockfile
 
-      - name: Rodar Cypress (E2E no Chrome)
+      - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          spec: cypress/e2e/**/*.cy.{js,ts}
+          working-directory: web
+          start: yarn start:test
+          wait-on: 'http://localhost:3000'
           browser: chrome
+          config: video=true,trashAssetsBeforeRuns=true
 
-      - name: Artefatos - vídeos (se houver)
+      - name: Upload videos
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
-          path: cypress/videos
+          path: web/cypress/videos
           if-no-files-found: ignore
-          retention-days: 30
 
-      - name: Artefatos - screenshots (apenas falhas)
-        if: failure()
+      - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
-          path: cypress/screenshots
+          path: web/cypress/screenshots
           if-no-files-found: ignore
-          retention-days: 30
