@@ -1,40 +1,50 @@
-name: Cypress e2E Tests
+name: Cypress E2E Tests
 
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 jobs:
-  component-tests:
+  e2e-tests:
+    timeout-minutes: 1260
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout do código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js
+      - name: Setup Node (LTS) + cache npm
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: lts/*
+          cache: npm
 
-      - name: 📦 Instalar dependências
-        run: npm install
+      - name: Instalar dependências (CI)
+        run: npm ci
 
-      - name: 🧪 Executar testes de componentes
-        run: npx cypress run
+      - name: Rodar Cypress (E2E no Chrome)
+        uses: cypress-io/github-action@v6
+        with:
+          spec: cypress/e2e/**/*.cy.{js,ts}
+          browser: chrome
 
-      - name: 📁 Salvar vídeos (se houver)
+      - name: Artefatos - vídeos (se houver)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: component-videos
+          name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore
+          retention-days: 30
 
-      - name: 📁 Salvar screenshots (se falhar)
+      - name: Artefatos - screenshots (apenas falhas)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: component-screenshots
+          name: cypress-screenshots
           path: cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 30
