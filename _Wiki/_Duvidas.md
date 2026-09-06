@@ -1,3 +1,0 @@
-# Duvidas Projeto
-
-1. ...

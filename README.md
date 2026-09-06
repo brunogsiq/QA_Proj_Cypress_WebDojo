@@ -37,3 +37,6 @@ Este projeto é **exclusivo para alunos** do **Curso Ninja do Cypress**. 🚫 O 
 ------
 
 💙 Feito com dedicação e muito café por **Fernando Papito** e a equipe do **Curso Ninja do Cypress**. 🚀🔥
+
+
+Mensagem teste - Deverá ser apagada após documentação completa
